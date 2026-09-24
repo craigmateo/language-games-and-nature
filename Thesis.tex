@@ -1,0 +1,269 @@
+%% ----------------------------------------------------------------
+%% Thesis.tex -- MAIN FILE (the one that you compile with LaTeX)
+%% ---------------------------------------------------------------- 
+% Set up the document
+\documentclass[a4paper, 11pt, twoside]{Thesis}  % Use the "Thesis" style, based on the ECS Thesis style by Steve Gunn
+
+\graphicspath{ {Figures/} }  % Location of the graphics files (set up for graphics to be in PDF format)
+
+% Include any extra LaTeX packages required
+% \usepackage[square, numbers, comma, sort&compress]{natbib}  % Use the "Natbib" style for the references in the Bibliography
+\usepackage{verbatim}  % Needed for the "comment" environment to make LaTeX comments
+\usepackage{vector}  % Allows "\bvec{}" and "\buvec{}" for "blackboard" style bold vectors in maths
+\hypersetup{urlcolor=blue, colorlinks=true}  % Colours hyperlinks in blue, but this can be distracting if there are many links.
+\usepackage{apalike}
+\usepackage[round]{natbib}
+\bibliographystyle{plainnat}
+\usepackage{lipsum}
+\usepackage{textcomp}
+\usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{amsmath}
+\usepackage{longtable}
+\usepackage{ulem}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{mathabx}
+\usepackage{wasysym}
+\usepackage{fontawesome}
+\usepackage{array}
+\usepackage{makecell}
+\usepackage{float}
+\restylefloat{table}
+\sloppy
+\usepackage[T1]{fontenc}
+\usepackage{scrextend}
+\usepackage{parskip}
+\usepackage{graphicx}
+\usepackage{media9}
+\usepackage{mdframed}
+\usepackage{gensymb}
+\usepackage{textcomp}
+\usepackage[none]{hyphenat}
+%\usepackage[firstpage]{draftwatermark}
+%\SetWatermarkScale{2.2}
+\usepackage{array,ragged2e}
+\newcolumntype{P}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+%% ----------------------------------------------------------------
+\begin{document}
+\frontmatter      % Begin Roman style (i, ii, iii, iv...) page numbering
+
+% Set up the Title Page
+\title  {Sprachspiele und Natur: Eine korpusbasierte Analyse des \"{o}kologischen Diskurses}
+\authors  {\texorpdfstring
+            {\href{your web site or email address}{Craig Frayne}}
+            {Craig Frayne}
+            }
+\addresses  {\groupname\\\deptname\\\univname}  % Do not change this here, instead these must be set in the "Thesis.cls" file, please look through it instead
+\date       {\today}
+\subject    {}
+\keywords   {}
+
+\maketitle
+%% ----------------------------------------------------------------
+
+\setstretch{1.3}  % It is better to have smaller font and larger line spacing than the other way round
+
+% Define the page headers using the FancyHdr package and set up for one-sided printing
+\fancyhead{}  % Clears all page headers and footers
+\rhead{\thepage}  % Sets the right side header to show the page number
+\lhead{}  % Clears the left side page header
+
+\pagestyle{fancy}  % Finally, use the "fancy" page style to implement the FancyHdr headers
+
+%% ----------------------------------------------------------------
+% Declaration Page required for the Thesis, your institution may give you a different text to place here
+\Declaration{
+
+\addtocontents{toc}{\vspace{1em}}  % Add a gap in the Contents, for aesthetics
+
+I, AUTHOR NAME, declare that this dissertation titled, `THESIS TITLE' and the work presented in it are my own. I confirm that:
+
+\begin{itemize} 
+\item[\tiny{$\blacksquare$}] This work was done wholly or mainly while in candidature for a research degree at this University.
+ 
+\item[\tiny{$\blacksquare$}] Where any part of this dissertation has previously been submitted for a degree or any other qualification at this University or any other institution, this has been clearly stated.
+ 
+\item[\tiny{$\blacksquare$}] Where I have consulted the published work of others, this is always clearly attributed.
+ 
+\item[\tiny{$\blacksquare$}] Where I have quoted from the work of others, the source is always given. With the exception of such quotations, this dissertation is entirely my own work.
+ 
+\item[\tiny{$\blacksquare$}] I have acknowledged all main sources of help.
+ 
+\item[\tiny{$\blacksquare$}] Where the dissertation is based on work done by myself jointly with others, I have made clear exactly what was done by others and what I have contributed myself.
+\\
+\end{itemize}
+ 
+ 
+Signed:\\
+\rule[1em]{25em}{0.5pt}  % This prints a line for the signature
+ 
+Date:\\
+\rule[1em]{25em}{0.5pt}  % This prints a line to write the date
+}
+\clearpage  % Declaration ended, now start a new page
+
+%% ----------------------------------------------------------------
+% The "Funny Quote Page"
+\pagestyle{empty}  % No headers or footers for the following pages
+
+\null\vfill
+% Now comes the "Funny Quote", written in italics
+\textit{``What speaks to the soul, escapes our measurements.''}
+
+\begin{flushright}
+Alexander von Humboldt
+\end{flushright}
+
+\vfill\vfill\vfill\vfill\vfill\vfill\null
+\clearpage  % Funny Quote page ended, start a new page
+%% ----------------------------------------------------------------
+% The Abstract Page
+\addtotoc{Abstract}  % Add the "Abstract" page entry to the Contents
+\abstract{
+\addtocontents{toc}{\vspace{1em}}  % Add a gap in the Contents, for aesthetics
+
+This dissertation approaches environmental discourse from the perspective of intercultural communication research. As a discipline, intercultural communication has encompassed a range of analytical levels, from micro-analysis of everyday communicative interactions to the macro-level structural factors that were brought into light by the critical turn. In light of planetary environmental issues, some researchers have called for an ``ecological turn'' as a new research paradigm. However, the complexity of integrating communication, culture, and the natural world into a coherent research program poses significant conceptual and methodological challenges. This dissertation seeks to provide both a methodological and conceptual framework for discourse at the interface of human cultures and the natural world.  
+
+To account for the methodological challenges, discourse analysis is coupled with corpus linguistics. A multilevel analytical framework is proposed for understanding and interpreting human communication about natural resources and ecological issues. This multilevel approach is then applied to three different ecologically-themed topics: genetically modified (GM) seed, the Dakota Access Pipeline, and extractive mining. For each topic, a custom corpus was built, each covering a distinct level of communication (textual, verbal, or nonverbal).
+
+Following analysis and interpretation of each corpus, conceptual principles are outlined based on observations from the corpus data. Proposed conceptual principles are the notion of language games [\textit{Sprachspiel}] and the intercultural public sphere, which are based on the thought Ludwig Wittgenstein and Hannah Arendt, respectively. In the context of a given ecological debate, there is a plurality of perspectives and worldviews. In a given discourse, scientific statements might be blended with expressions of cultural identity, religious sentiments, or socio-economic commentary. Yet, in all the analyses we find there is a bias towards de-contextualizing the debate. This decontextualization is a source of communicative misunderstanding. Meaningful deliberation in the public sphere will depend on interactants being aware of the diversity of language games that emerge in deliberations about the natural world.  
+}
+
+\clearpage  % Abstract ended, start a new page
+%% ----------------------------------------------------------------
+
+\setstretch{1.3}  % Reset the line-spacing to 1.3 for body text (if it has changed)
+
+% The Acknowledgements page, for thanking everyone
+\acknowledgements{
+\addtocontents{toc}{\vspace{1em}}  % Add a gap in the Contents, for aesthetics
+
+This dissertation is the product of practical experiences and a professional/intellectual development that left me asking more questions at every stage. Early on in my career, I worked with the chemist and environmentalist Michael Braungart and colleagues in Hamburg. The notion that ecological issues could be broken down, and even resolved, by way of chemical processes was appealing, certainly from the perspective of industry. I then proceeded to Masters studies in Environmental Engineering at the Bauhaus University. My dissertation began as a technical project related to a desalination project, but ended up concluding that the costs/benefits of infrastructure policies were highly dependent on one's position in society.   
+Around the same time, I was invited by a local citizen's group to help fight the dumping of contaminated waste in their community. This experience opened my eyes to how ecological issues play out in civil society. Also during this time, I was volunteering in Central America dealing with issues of water and sanitation. I could not help but view environmental issues through the lens of environmental justice. In a world that is vastly unequal in terms of wealth and power, the distribution of ``environmental goods'' is similarly unequal. 
+
+As I continued my work both in the Global North and South, I was struck by the pride and identity people took in a sense of place. Neighbourhoods, communities and natural surroundings were bound up with culture. Beyond scientific and materialist understandings of nature, meaning-centred approaches to the natural world seemed crucial. Exposure to political ecology literature further helped me understand and clarify these different ways of understanding environmental issues. I was left seeing a role for approaches that integrated empirical science, environmental justice, as well as ethnographic approaches. However, I felt this interdisciplinarity is in need of guiding conceptual principles. This dissertation is an attempt to address that need.
+
+There are many to whom I owe gratitude and thanks, including those involved in all the journeys mentioned above. These include colleagues and EPEA in Hamburg as well as the Concerned Citizens of Tyendinaga and S.H.A.R.E. Agriculture Foundation. From the academic side, I owe a thanks to my Masters supervisors, Dr. Eckhard Kraft and Dr. Mark Frederick Jentsch in Weimar. In addition, I would like to thank Dr. Alex Latta at Wilfrid Laurier University in Canada whose seminar in political ecology helped develop my thinking. Dr. Aaron Stibbe also served as an encouragement, both in terms of his own scholarly work and encouragement by way of the ecoliguistics research community. Finally, my supervisor Dr. Michael Hinner. Working full-time while undertaking this research would not have been possible without his patience and flexibility. 
+
+}
+\clearpage  % End of the Acknowledgements
+%% ----------------------------------------------------------------
+
+\pagestyle{fancy}  %The page style headers have been "empty" all this time, now use the "fancy" headers as defined before to bring them back
+
+
+%% ----------------------------------------------------------------
+\lhead{\textit{Contents}}  % Set the left side page header to "Contents"
+\tableofcontents  % Write out the Table of Contents
+
+%% ----------------------------------------------------------------
+\lhead{\emph{List of Figures}}  % Set the left side page header to "List if Figures"
+\listoffigures  % Write out the List of Figures
+
+%% ----------------------------------------------------------------
+\lhead{\emph{List of Tables}}  % Set the left side page header to "List of Tables"
+\listoftables  % Write out the List of Tables
+
+%% ----------------------------------------------------------------
+\setstretch{1.5}  % Set the line spacing to 1.5, this makes the following tables easier to read
+\clearpage  % Start a new page
+\lhead{\emph{Abbreviations}}  % Set the left side page header to "Abbreviations"
+\listofsymbols{ll}  % Include a list of Abbreviations (a table of two columns)
+{
+% \textbf{Acronym} & \textbf{W}hat (it) \textbf{S}tands \textbf{F}or \\
+\textbf{ICC} & \textbf{I}nter\textbf{c}ultural \textbf{C}ommunication \\
+\textbf{CL} & \textbf{C}orpus \textbf{L}inguistics \\
+\textbf{AI} & \textbf{A}rtificial \textbf{I}ntelligence \\
+\textbf{CDA} & \textbf{C}ritical \textbf{D}iscourse \textbf{A}nalysis \\
+\textbf{CuDA} & \textbf{Cu}ltural \textbf{D}iscourse \textbf{A}nalysis \\
+\textbf{MDA} & \textbf{M}ultilevel \textbf{D}iscourse \textbf{A}nalysis \\
+\textbf{DA} & \textbf{D}iscourse \textbf{A}nalysis \\
+\textbf{TTR} & \textbf{T}ype \textbf{T}oken \textbf{R}atio \\
+\textbf{STTR} & \textbf{S}tandarized \textbf{T}ype \textbf{T}oken \textbf{R}atio \\
+\textbf{KWIC} & \textbf{K}ey\textbf{w}ord \textbf{i}n \textbf{C}context \\
+\textbf{DAP} & \textbf{D}akota \textbf{A}ccess \textbf{P}ipeline \\
+\textbf{GM} & \textbf{G}enetically \textbf{M}odified \\
+\textbf{GMO} & \textbf{G}enetically \textbf{M}odified \textbf{O}rganism \\
+\textbf{ESL} & \textbf{E}nglish as a \textbf{S}econd \textbf{L}anguage \\
+\textbf{PI} & \textbf{P}hilosophical \textbf{I}nvestigations \\
+\textbf{BB} & \textbf{B}lue \textbf{B}ook \\
+\textbf{FSI} & \textbf{F}oreign \textbf{S}ervice \textbf{I}nstitute \\
+\textbf{tld} & \textbf{t}op \textbf{l}evel \textbf{d}omain \\
+\textbf{ICMs} & \textbf{I}dealized \textbf{C}ognitive \textbf{M}odels \\
+\textbf{NVC} & \textbf{N}on\textbf{v}erbal \textbf{C}ommunication \\
+\textbf{BECV} & \textbf{Be}havioral \textbf{E}cology \textbf{V}iew (of facial displays) \\
+\textbf{BECV} & \textbf{B}asic \textbf{E}motions \textbf{T}heory \\
+\textbf{UEs} & \textbf{U}niversal \textbf{E}xpressions (facial) \\
+\textbf{UN} & \textbf{U}nited \textbf{N}ations \\
+\textbf{BLM} & \textbf{B}lack \textbf{L}ives \textbf{M}atter \\
+}
+
+%% ----------------------------------------------------------------
+%\clearpage  % Start a new page
+%\lhead{\emph{Physical Constants}}  % Set the left side page header to "Physical Constants"
+%\listofconstants{lrcl}  % Include a list of Physical Constants (a four column table)
+%{
+% Constant Name & Symbol & = & Constant Value (with units) \\
+%Speed of Light & $c$ & $=$ & $2.997\ 924\ 58\times10^{8}\ %\mbox{ms}^{-\mbox{s}}$ (exact)\\
+
+%}
+
+%% ----------------------------------------------------------------
+% End of the pre-able, contents and lists of things
+% Begin the Dedication page
+
+\setstretch{1.3}  % Return the line spacing back to 1.3
+
+\pagestyle{empty}  % Page style needs to be empty for this page
+\dedicatory{Dedicated to my nephews: Owen, Caden, Griffen, and Liam}
+
+\addtocontents{toc}{\vspace{2em}}  % Add a gap in the Contents, for aesthetics
+
+
+%% ----------------------------------------------------------------
+\mainmatter	  % Begin normal, numeric (1,2,3...) page numbering
+\pagestyle{fancy}  % Return the page headers back to the "fancy" style
+
+% Include the chapters of the thesis, as separate files
+% Just uncomment the lines as you write the chapters
+
+\input{Chapters/Chapter1} % Introduction
+
+\input{Chapters/Chapter2} % Methods 
+
+\input{Chapters/Chapter3} % Analysis 1
+
+\input{Chapters/Chapter4} % Analysis 2
+
+\input{Chapters/Chapter5} % Analysis 3
+
+\input{Chapters/Chapter6} % Conceptual Framework
+
+\input{Chapters/Chapter7} % Results and Discussion
+
+%% ----------------------------------------------------------------
+% Now begin the Appendices, including them as separate files
+
+\addtocontents{toc}{\vspace{2em}} % Add a gap in the Contents, for aesthetics
+
+\appendix % Cue to tell LaTeX that the following 'chapters' are Appendices
+
+\input{Appendices/Appendix1} % Appendix A
+
+\input{Appendices/Appendix2} % Appendix B
+
+\input{Appendices/Appendix3} % Appendix C
+
+\addtocontents{toc}{\vspace{2em}}  % Add a gap in the Contents, for aesthetics
+\backmatter
+
+%% ----------------------------------------------------------------
+\label{Bibliography}
+\lhead{\textit{Bibliography}}  % Change the left side page header to "Bibliography"
+\normalem
+\bibliographystyle{apalike}  % Use the "unsrtnat" BibTeX style for formatting the Bibliography
+\bibliography{Bibliography}  % The references (bibliography) information are stored in the file named "Bibliography.bib"
+\end{document}  % The End
+%% ----------------------------------------------------------------

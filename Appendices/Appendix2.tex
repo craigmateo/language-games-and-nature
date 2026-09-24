@@ -1,0 +1,441 @@
+\chapter{Appendix 2}
+\lhead{\textit{Appendix 2}}
+This appendix contains the data analysis (using Python) for the analysis described in Chapter 4. The data is a corpus consisting of articles and webpages covering the Dakota Access Pipeline (DAP). The data was collected manually using a search engine. Results were saved as separate txt files. 
+
+Raw data is available in the folder \textit{Analysis 2} in a in a GitHub repo: \href{https://github.com/craigmateo/multilevel_corpus}{https://github.com/craigmateo/multilevel\_corpus}
+
+The sections below contain a description of each analysis carried out as well as the corresponding Python code and the output from running that code. 
+
+\section{Pre-processing}
+
+The code below reads the 2 \textit{txt} files and does preprocessing on the text. The preprocessing consists of:
+
+1. \textbf{Noise removal} (removal of punctuation, special characters, digits)
+2. \textbf{Normalization} (stemming, lemmatization, removal of stopwords) 
+
+Excerpts from the each preprocessed subcorpus are then printed.
+
+\textbf{Code: Pre-processing}
+
+\begin{lstlisting}
+import pandas as pd
+import glob
+total=0
+txt_files = glob.glob("C:...\\corpus\\*.txt")
+raw_lines = []
+#txt_files = glob.glob("*.txt")
+for filename in txt_files:
+	with open(filename, "r", encoding="utf-8") as f:
+		x = f.readlines()
+		for line in x:
+			raw_lines.append(line)
+# Libraries for text preprocessing
+import re
+import nltk
+#nltk.download('stopwords')
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+from nltk.tokenize import RegexpTokenizer
+#nltk.download('wordnet') 
+from nltk.stem.wordnet import WordNetLemmatizer
+##Creating a list of stop words
+stop_words = set(stopwords.words("english"))
+corpus_PRE = []
+corpus = []
+for i in range(0, len(raw_lines)):
+    #Remove punctuation
+    #text = re.sub('[^a-zA-Z]', ' ', raw_lines[i])
+    #remove tags
+    text=re.sub("&lt;/?.*?&gt;"," &lt;&gt; ", raw_lines[i])
+    #Convert to lowercase
+    text = text.lower()
+    # remove special characters and digits
+    text=re.sub("(\\d|\\W)+"," ",text)
+    corpus_PRE.append(text)
+    ##Convert to list from string
+    text = text.split()
+    ##Stemming
+    ps=PorterStemmer()
+    #Lemmatisation
+    lem = WordNetLemmatizer()
+    text = [lem.lemmatize(word) for word in text if not word in  
+            stop_words] 
+    text = " ".join(text)
+    corpus.append(text)
+text = " ".join(corpus)
+print("Excerpt:" + "\n\n" + text[1100:1200])
+\end{lstlisting}
+
+
+\textbf{Output: Text excerpt}
+
+\begin{footnotesize}
+
+Excerpt:
+ric preservation asked army corp engineer conduct formal environmental impact assessment issue envir
+\end{footnotesize}
+
+
+\section{Word Count}
+One count is taken with only noise removal and another with both noise removal and normalization.
+
+\textbf{Code: Word Count}
+
+\begin{lstlisting}
+textPre = " ".join(corpus_PRE)
+num_words_PRE = format(len(textPre.split()),",")
+num_words = format(len(text.split()),",")
+print("\n" + 'Noise Removal:' + "\n")  
+print(str(num_words_PRE))
+print("\n" + 'Noise Removal & Normalization:' + "\n")  
+print(str(num_words))
+\end{lstlisting}
+
+\textbf{Output: Word Count}
+
+\begin{footnotesize}
+
+Noise Removal:
+291,856
+
+Noise Removal \& Normalization:
+174,974
+
+\end{footnotesize}
+
+
+
+
+
+
+\section{Quotations}
+Quotations are extracted from the corpus using regular expression matching. 500 characters before and after each quotation are also extracted so, for each quote, the context as well as the speaker could be identified.
+
+\textbf{Code: Quotations}
+
+\begin{lstlisting}
+quotesList = []
+quoteContext = []
+total=0
+raw_text = []
+for line in raw_lines:
+    raw_text.append(line)
+alltext = " ".join(raw_text)
+quotes = re.findall(r'"(.*?)"', alltext)
+for i in quotes:
+    ind = alltext.index(i)
+    start=ind-500
+    end=(ind+len(i))+100
+    context=alltext[start:end]
+    context = context.replace("\n","")
+    quotesList.append(i)
+    quoteContext.append([i,context])
+    total=total+1
+print("\n" + 'Total Quotations:' + "\n") 
+print(total)
+print("\n" + 'Sample of Quotation (with context below):' + "\n") 
+print('"' + quotesList[0] + '"' +"\n")
+print(quoteContext[0][1])
+\end{lstlisting}
+
+\textbf{Output: Quotations}
+
+\begin{footnotesize}
+
+Total Quotations:
+1101
+
+Sample of Quotation (with context below):
+
+"reshaping the national conversation for any environmental project that would cross the Native American land."
+
+ny in the Standing Rock tribe considered the pipeline and its intended crossing of the Missouri River to constitute a threat to the region's clean water and to ancient burial grounds. In April 2016, Standing Rock Sioux elder LaDonna Brave Bull Allard established a camp as a center for cultural preservation and spiritual resistance to the pipeline; over the summer the camp grew to thousands of people.  The protests drew considerable  national and international attention and have been said to be "reshaping the national conversation for any environmental project that would cross the Native American land."[5] The U.S. Army Corps of Engineers had conducted a limited review of the route and found no sign
+
+\end{footnotesize}
+
+\textbf{Code: Manual Cleaning}
+
+The initial list of 1101 quotes was manually cleaned by removing noise and lines that were obviously not spoken quotations. Duplicates were also removed. The result was a list of 660 quotes.
+
+\begin{lstlisting}
+import pandas
+colnames = ['QUOTE', 'REMOVE']
+data = pandas.read_csv("C:...\\remove.csv", names=colnames)
+quotes = data.QUOTE.tolist()
+remove = data.REMOVE.tolist()
+cleanQuotes = []
+totalRemoved = 0
+for q in quotes:
+	ind = quotes.index(q)
+	if remove[ind]!="X":
+		if q not in cleanQuotes:
+			cleanQuotes.append(q)
+	else:
+		totalRemoved=totalRemoved+1
+print("Original number: " + str(len(quotes)))
+print("Number removed: " + str(totalRemoved))
+print("Final list (deduped): " +str(len(cleanQuotes)))
+\end{lstlisting}
+
+\textbf{Output: Manual Cleaning}
+
+\begin{footnotesize}
+Original number: 988
+
+Number removed: 255
+
+Final list (deduped): 660
+\end{footnotesize}
+
+
+\textbf{Code: Grouping}
+
+The 660 quotes were then further reduced manually and qualitatively. Similar quotes (i.e. similar themes/speakers) were removed. Also very short or one-word quotes were generally removed. The 100 or so remaining quotes were then separated into one of three groups:
+
+* Group A: proponents who either actively voices support for the pipeline (e.g., company representatives) or took a legal or institutional stand against the pipeline protesters (e.g., law enforcement)
+* Group B: protesting opponents of the pipeline, most notably the affected Indigenous peoples, but also others who came to Standing Rock, North Dakota to voice opposition
+* Group C: supporters and allies of protesters, such as NGOs and politicians who spoke out against the pipeline/in support of protesters
+
+\begin{lstlisting}
+colnames = ['Quote', 'Speaker','Group']
+data = pandas.read_csv("C:...\\grouped.csv", names=colnames)
+quotes = data.Quote.tolist()
+speakers = data.Speaker.tolist()
+groups = data.Group.tolist()
+print("total quotes: " +str(len(quotes)-1))
+data.head() 
+\end{lstlisting}
+
+\textbf{Output: Grouping}
+
+\begin{footnotesize}
+total quotes: 92
+
+\begin{table}[H]
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Quote}                                    & \textbf{Speaker}                              & \textbf{Group} \\ \hline
+Protesters' escalated unlawful behavior this w... & Morton County Sheriff's Department            & A              \\ \hline
+...damage caused after protesters set numerous... & Morton County Sheriff's Department            & A              \\ \hline
+[The police said the protesters had been] very... & Morton County Sheriff's Department            & A              \\ \hline
+...multiple archaeological studies conducted w... & Kelcy Warren, CEO of Energy Transfer Partners & A              \\ \hline
+\end{tabular}%
+}
+\end{table}
+\end{footnotesize}
+
+
+\section{Keywords}
+
+\textbf{Code: Keywords}
+
+\begin{lstlisting}
+groupA = []
+groupB = []
+groupC = []
+for i in range(0,len(quotes)):
+    if groups[i]=="A":
+        groupA.append(quotes[i])
+    if groups[i]=="B":
+        groupB.append(quotes[i])
+    if groups[i]=="C":
+        groupC.append(quotes[i])
+def process(group):
+    post = []
+    for i in range(0, len(group)):
+        #Remove punctuation
+        text = re.sub('[^a-zA-Z]', ' ', group[i])
+        #Convert to lowercase
+        text = text.lower()
+        #remove tags
+        text=re.sub("&lt;/?.*?&gt;"," &lt;&gt; ",text)
+        # remove special characters and digits
+        text=re.sub("(\\d|\\W)+"," ",text)
+        ##Convert to list from string
+        text = text.split()
+        ##Stemming
+        ps=PorterStemmer()
+        #Lemmatisation
+        lem = WordNetLemmatizer()
+        text = [lem.lemmatize(word) for word in text if not word in  
+                stop_words] 
+        text = " ".join(text)
+        post.append(text)
+    group.append(post)
+process(groupA)
+process(groupB)
+process(groupC)
+from sklearn.feature_extraction.text import CountVectorizer
+import re
+cv=CountVectorizer(max_df=0.8,stop_words=stop_words, max_features=10000, ngram_range=(1,3))
+X=cv.fit_transform(groupA[-1])
+list(cv.vocabulary_.keys())[:10]
+#Most frequently occurring words
+def get_top_n_words(corpus, n=None):
+    vec = CountVectorizer().fit(corpus)
+    bag_of_words = vec.transform(corpus)
+    sum_words = bag_of_words.sum(axis=0) 
+    words_freq = [(word, sum_words[0, idx]) for word, idx in      
+                   vec.vocabulary_.items()]
+    words_freq =sorted(words_freq, key = lambda x: x[1], 
+                       reverse=True)
+    return words_freq[:n]
+#Convert most freq words to dataframe for plotting bar plot
+top_wordsA = get_top_n_words(groupA[-1], n=20)
+top_wordsB = get_top_n_words(groupB[-1], n=20)
+top_wordsC = get_top_n_words(groupC[-1], n=20)
+top_dfA = pandas.DataFrame(top_wordsA)
+top_dfA.columns=["Word", "Freq"]
+top_dfB = pandas.DataFrame(top_wordsB)
+top_dfB.columns=["Word", "Freq"]
+top_dfC = pandas.DataFrame(top_wordsC)
+top_dfC.columns=["Word", "Freq"]
+print("\n Group A \n")
+print(top_dfA)
+print("\n Group B \n")
+print(top_dfB)
+print("\n Group C \n")
+print(top_dfC)
+\end{lstlisting}
+
+\textbf{Output: Manual Cleaning}
+
+\begin{footnotesize}
+
+
+\begin{table}[H]
+\begin{tabular}{|l|l|l|l|l|l|}
+\hline
+\multicolumn{2}{|l|}{\textbf{Group A}}           & \multicolumn{2}{l|}{\textbf{Group B}}            & \multicolumn{2}{l|}{\textbf{Group C}}            \\ \hline
+\textit{\textbf{Word}} & \textit{\textbf{Freq.}} & \textit{\textbf{Word}} & \textit{\textbf{Freq.}} & \textit{\textbf{Word}} & \textit{\textbf{Freq.}} \\ \hline
+protester              & 4                       & people                 & 9                       & people                 & 13                      \\ \hline
+energy                 & 4                       & nation                 & 6                       & going                  & 10                      \\ \hline
+law                    & 4                       & iowa                   & 6                       & camp                   & 8                       \\ \hline
+state                  & 3                       & indigenous             & 5                       & water                  & 7                       \\ \hline
+transfer               & 3                       & dakota                 & 5                       & protect                & 7                       \\ \hline
+partner                & 3                       & government             & 5                       & pipeline               & 6                       \\ \hline
+federal                & 3                       & right                  & 5                       & prayer                 & 6                       \\ \hline
+people                 & 3                       & water                  & 4                       & right                  & 6                       \\ \hline
+think                  & 3                       & project                & 4                       & something              & 6                       \\ \hline
+others                 & 3                       & going                  & 4                       & fight                  & 5                       \\ \hline
+company                & 3                       & land                   & 4                       & life                   & 5                       \\ \hline
+behavior               & 2                       & trying                 & 3                       & indigenous             & 5                       \\ \hline
+safety                 & 2                       & would                  & 3                       & future                 & 5                       \\ \hline
+caused                 & 2                       & say                    & 3                       & sacred                 & 4                       \\ \hline
+police                 & 2                       & industry               & 3                       & think                  & 4                       \\ \hline
+said                   & 2                       & get                    & 3                       & human                  & 4                       \\ \hline
+aggressive             & 2                       & far                    & 3                       & need                   & 4                       \\ \hline
+would                  & 2                       & pipe                   & 3                       & mother                 & 4                       \\ \hline
+cannot                 & 2                       & force                  & 3                       & earth                  & 4                       \\ \hline
+\end{tabular}
+\end{table}
+
+
+\end{footnotesize}
+
+
+\begin{footnotesize}
+\begin{spacing}{1}
+\begin{longtable}{| p{.60\textwidth} | P{.25\textwidth} | p{.07\textwidth}|} 
+\hline
+Quote           & Speaker                                      & Group          \\ \hline
+\endfirsthead
+%
+\endhead
+%
+Protesters' escalated unlawful behavior this weekend by setting up illegal roadblocks, trespassing onto private property...this is a public safety issue.               & Morton County Sheriff's Department           & A              \\ \hline
+...damage caused after protesters set numerous fires.                                               & Morton County Sheriff's Department           & A              \\ \hline
+[The police said the protesters had been] very aggressive                                           & Morton County Sheriff's Department           & A              \\ \hline
+...multiple archaeological studies conducted with state historic preservation offices found no sacred items along the route                                           & Kelcy Warren, CEO of Energy Transfer Partners                                                                  & A              \\ \hline
+...political interference...further delay in the consideration of this case would add millions of dollars more each month in costs which cannot be recovered.           & Energy Transfer Partners                     & A              \\ \hline
+...will only prolong the disruption in the region caused by protests and make life difficult for everyone who lives and works in the area.                            & North Dakota Senator John Hoeven             & A              \\ \hline
+[Energy Transfer Partners alleges Greenpeace and other] eco-terrorist groups [tried to block its pipeline with] campaigns of misinformation.                          & Energy Transfer Partners                     & A              \\ \hline
+The protesters' sprawling encampments, with virtually no sanitation facilities, and their contamination of the land and water during their `occupation,' were all in violation of federal law.                                                            & Attorney General Wayne Stenehjem             & A              \\ \hline
+a gift to the people of North Dakota (referring to a donation from Energy Transfer partners)        & Attorney General Wayne Stenehjem             & A              \\ \hline
+We think this is a great step forward for energy security in America.                               & Ron Ness, the council's president            & A              \\ \hline
+We are very pleased to bring this important infrastructure project that benefits all Americans and our national economy into service on June 1.                       & Energy Transfer spokeswoman Lisa Dillinger   & A              \\ \hline
+There were some that would have liked to have it zigzag through their farms, mainly because of what they got paid.                                                    & MAIN Coalition Chairman Ed Wiederstein       & A              \\ \hline
+We think that this is a better and safer way to do it.... We have thousands of miles of pipeline through the state of Iowa...the newer approach that was used in this pipeline I think will be a lot safer.                                                   & Iowa Gov. Terry Branstad                     & A              \\ \hline
+While we can expect to see the continued spread of the anti-DAPL diaspora ... aggressive intelligence preparation of the battlefield and active coordination between intelligence and security elements are now a proven method of defeating pipeline insurgencies,                                                           & TigerSwan documents [private security firm]  & A              \\ \hline
+Unfortunately, a lot of times these things can be overwhelmed from outside groups.                  & Sen. Scott Martin                            & A              \\ \hline
+...developed response and action plans, and will include several monitoring systems, shut-off valves, and other safety features to minimize the risk of spills....     & Energy Transfer Partners                     & A              \\ \hline
+a large component [of protestors] is very violent, very confrontational...we hopefully will see federal agents helping police.... When you have that many people engaged in that kind of behavior, inciting others to break the law, cheering others on as they do break the law, refusing to leave when they're asked to leave, that's not a protest.                                                              & Cass County Sheriff Paul Laney               & A              \\ \hline
+Energy Transfer Partners said the project meets ``all applicable federal, state and local environmental laws, regulations and standards,'' according to a company fact sheet. ``We continually seek ways to enhance our operations in the areas of environmental and resource protection and conservation,'' the company says.  & Energy Transfer Partners                     & A              \\ \hline
+There is an element there of people protesting who are frightening. It's time for them to go home.                                                                    & North Dakota Attorney General Wayne Stenehjem                                                                  & A              \\ \hline
+We cannot let the politics of extreme activists, or the narcissistic antics of celebrities, harm what should be our most important goal, which is comity between tribal and non-tribal communities and a unified, neighborly spirit as North Dakotans.    & Rob Port, blogger                            & A              \\ \hline
+Today's unfortunate decision sends a very chilling signal to others who want to build infrastructure in this country.                                                 & Rep. Kevin Cramer                            & A              \\ \hline
+This action is motivated purely by politics at the expense of a company that has done nothing but play by the rules it was given,                                     & Energy Transfer Partners CEO, Kelcy Warren   & A              \\ \hline
+We're not in a position where we can agree to any kind of stopping of the pipeline.                 & David Debold, a lawyer for Dakota Access     & A              \\ \hline
+We don't ever hear the narrative of indigenous people. We hear people writing our narratives for us. & Eryn Wise, Council communications director                                                         \\ \hline
+The cops watched the whole thing from up on the hills. It felt like they were trying to provoke us into being violent when we're peaceful.                            & Woman protestor                              & B              \\ \hline
+North Dakota regulators are really, I would say, in bed with the oil industry and so they have looked the other way.                                                  & Winona LaDuke, Ojibwe activist, Green Party candidate                                                          & B              \\ \hline
+Confronting men, women, and children while outfitted in gear more suited for the battlefield is a disproportionate response.                                          & Archambault                                  & B              \\ \hline
+[my daughter was] strip-searched in front of multiple male officers, then left for hours in her cell, naked and freezing.                                             & Brave Bull Allard                            & B              \\ \hline
+If you're white, you can occupy federal property ... and get found not guilty. No teargas, no tanks, no rubber bullets ... If you're indigenous and fighting to protect our earth, and the water we depend on to survive, you get tear gassed, media blackouts, tanks and all that.                                         & Black lives matter organizer Alicia Garza    & B              \\ \hline
+The granting of an easement, without any environmental review or tribal consultation, is not the end of this fight — it is the new beginning. Expect mass resistance far beyond what Trump has seen so far. ... Our tribal nations and Indigenous grassroots peoples on the front lines have had no input on this process.  & The director of the Indigenous Environmental Network                                                           & B              \\ \hline
+The U.S. must recognize that we have political equality.                                            \& This is much larger than a specific infrastructure project. It goes to the fundamental relationship.           & Fawn Sharp, president of the Quinault Indian Nation and the Affiliated Tribes of Northwest Indians & B \\ \hline
+Chief Arvol Looking Horse, spiritual leader and Keeper of the Sacred Pipe Bundle of the Lakota/Dakota/Nakota Nations, invoked his role as the voice of traditional government of the Great Sioux Nation and called upon President Barack Obama to communicate "nation to nation, as indicated by our treaties."             & Chief Arvol Looking Horse                    & B              \\ \hline
+assault and intimidation at the hands of the militarized police force.                              & Veterans Stand for Standing Rock             & B              \\ \hline
+We are prepared to put our bodies between Native elders and a privatized military force. We've stood in the face of fire before. We feel a responsibility to use the skills we have.                                                                      & Air force veteran Elizabeth Williams         & B              \\ \hline
+the oil companies and the government of the United States have failed to respect our sovereign rights.                                                                & Chief Archambault                            & B              \\ \hline
+It's just been escalating to that point where we have to use our phones to just show our side of our story.                                                           & protester E'sha Hoferer                      & B              \\ \hline
+Because of the Dakota Access pipeline protest we that live here have to deal with racism or prejudice more now than before up in Bismarck,.... The casino is still impacted by this. And our casino is one of our primary economic drivers,               & Edward Swifthorse, who lives in Cannon Ball, the reservation community nearest the camps                       & B              \\ \hline
+about how the people have the right to overthrow the government if it abuses its power. Who said that?                                                                & Rattler, native activist                     & B              \\ \hline
+We're going to be on the lookout. We're going to be watchdogs,.... because we have no faith in the Iowa Utilities Board or Dakota Access.                             & Matt Ohloff, an organizer with Iowa Citizens for Community Improvement, a vocal opponent of the pipeline       & B              \\ \hline
+They have just almost limitless funds for their legal process and we don't.... To me, that's taking away our rights, and taking it away from our children.            & Dick Lamb, "landowner"                       & B              \\ \hline
+Documents prove the private security firm collaborated with Iowa Fusion Center, Iowa law enforcement, Iowa FBI regional offices, etc. - all of those agencies must also have documents                                                                    & David Goodner, an Iowa activist who helped to plan anti                                                        & B              \\ \hline
+Adam Mason, state policy director for Iowa Citizens for Community Improvement, said The Intercept report confirms his belief that "big business and big ag" are pulling the levers of government in Iowa."This is the perfect example where you see law enforcement and public safety officials working together for big corporations to the detriment of everyday people,"                                     & Adam Mason, state policy director for Iowa Citizens for Community Improvement                                  & B              \\ \hline
+We do not trust the government, period,                                                             & Michael Her Many Horses, a Lakota historian and former executive director of the Oglala Sioux Tribe in South Dakota                                                                                & B              \\ \hline
+they're gonna bring trumped up charges. They're going to use this to say the 'water protectors' are illegal in every form, so they can bring the feds in, the ATF in. & Cody Hall, a member of the Lakota tribe who has been active in the pipeline protests                           & B              \\ \hline
+It is because of the behavior of the state that these tensions are heightened,                      & Archambault                                  & B              \\ \hline
+There have been over 200 arrests thus far, and not one weapon produced.                             & Goldtooth                                    & B              \\ \hline
+Trump's reversal of that decision continues a historic pattern of broken promises to Indian tribes and violation of treaty rights. They will be held accountable in court.                                                                                & Hasselman                                    & B              \\ \hline
+We know in Flint that water is in dire need,...In North Dakota, they're trying to force pipes on people. We're trying to get pipes in Flint for safe water.           & Art Woodson and two other veterans drove 17 hours straight from Flint, Michigan,                               & B              \\ \hline
+We are going around and sharing our stories as well as talking to the banks here in Europe that are invested in the fossil fuel projects on our lands,.... They are invested in the fossil fuel projects on our lands that again continue to oppress our people. So we are here to send a message to Credit Suisse that they need to divest from these projects, as well as invest in policies that protect our indigenous nations,... We were not welcomed,... We were muffled out. We were booed. Some of the board members that were present avoided us. They went around the room and tried to avoid our question. They would not answer it,.... They did not say they would divest. They did not respond to us at all. & Rachel Heaton, a member of the Muckleshoot Tribe                                                               & B              \\ \hline
+We are suffering the highest rates of cancer. We are suffering the highest rates of sex trafficking per capita. We are suffering the highest rates of suicide per capita.                                                                                 & Nataanii Means, an Oglala Sioux and Navajo activist and hip-hop artist                                         & B              \\ \hline
+treating the original inhabitants of this land as though we are less than human, as though our lives and lands are something to be ignored and discarded in the never-ending quest for profit.                                                            & Iron Eyes                                    & B              \\ \hline
+Indigenous leaders, landowners and climate activists are ready to challenge this decision in the courts and in the streets - as we have each time the fossil fuel industry steamrolls over human rights for their own profits.                            & May Boeve, executive director of 350.org     & B              \\ \hline
+Their whole philosophy for dealing with this situation - and anyone that stands in the way of them and their profits - is based on things like intimidation, instigation and violence. But that's the power of people protest - they don't know what to do when we refuse to give up nonviolence as our main approach.      & Anthony Diggs, communications director for Veterans Stand and a former Marine                                  & B              \\ \hline
+Our people are continuously brushed aside for an industry advancement that will only line the pockets of the top 1 percent,                                           & Allison Renville, an activist from the Lakota nation                                                           & B              \\ \hline
+Go home. We're here to fight the pipeline, not these people, and we can only win this with prayer.                                                                    & Elder                                        & C              \\ \hline
+We are not opposed to energy independence. We are opposed to reckless and politically motivated development projects, like DAPL, that ignore our treaty rights and risk our water. Creating a second Flint does not make America great again. & Archambault  & C    \\ \hline
+As Indian people, we have a right to protect our lands and protect our water rights. That's our responsibility to the next seven generations.                         & Principal Chief Bill John Baker of the Cherokee Nation                                                         & C              \\ \hline
+putting their whole lives and everything that they had on the line for the protection of their community,                                                             & Alexandria Ocasio-Cortez                     & C              \\ \hline
+I can be proud of this life I lived.                                                                & Dustin Monroe, a Native American who fought in Iraq                                                            & C              \\ \hline
+There's a sense of liberation, a sense of freedom, and a sense of worth. I can actually do something. I'm actually free?                                              & Archambault                                  & C              \\ \hline
+The lessons I learned here: how to listen, how to stay humble, stay in prayer,...It's a very sacred space, always will be,...I'll always stop here when I get a chance, probably for the rest of my life                                                      & Dave Lillis, pointing to spot near a line of trees. Lillis, 39, is from Washington state and said he lived in the camp for five months                                                             & C              \\ \hline
+A year and a half ago we were invisible, we were invisible people,.... And I think that we have decided that visibility is a gift. And we are going to use it for the greater good. We actually had people who live in the local area who were not even in camp or weren't really even interested in what was going on at camp who would come to camp just to receive health care because, it was free first of all, but also I think it just really touched a part of them that traditional western health care doesn't,                                               & Linda Black Elk, a teacher at Sitting Bull College                                                             & C              \\ \hline
+It gave me a purpose. I have a purpose in this world again. How often is this opportunity going to come along again where I can say I did something good with my life?                                                                                    & Sherman Alexander, Cheyenne River reservation Our sacrifices up on Standing Rock humbled me,... I learned how to control my anger.                                                                   & C              \\ \hline
+The unity, the love and the compassion. The pride of just uniting all of us. Different races, indigenous people from all over the world. It was beautiful,.... This isn't going to go away. This is embedded in our hearts,.... It's something we have to do. To save our planet. To save the human race.                       & Hoka Luta Win, or Red Badger Woman           & C              \\ \hline
+It's not this hippy dippy thing, and it's not this New Age thing. It's something completely new. It's really releasing that inner warrior, that spiritual warrior,.... We've recognized that human spirit within each other. Because that human spirit doesn't have a color.                                                  & Joye Braun, community organizer for the Minnesota based Indigenous Environmental Network                       & C              \\ \hline
+We have lived for generations in this setting. That is our camp. We will continue to provide for our people there, .... This is treaty territory, and no one else has jurisdiction there.                                                                   & Standing Rock Sioux spokesperson Phyllis Young                                                                 & C              \\ \hline
+A lot of our people want to be here and pray for our future,.... There's a lot of sadness right now. We have to leave our second home,....                                & tribal chairman Harold Frazier               & C              \\ \hline
+We are not going to do anything negative. It's about prayer.                                        & Charles Whalen, 50, an alcohol and drug counsellor from Mille Lacs, Minn.                                      & C              \\ \hline
+People have been surviving here for hundreds and hundreds of years ... so if I back down, what would I look like?                                                       & Matthew Bishop, of Ketchikan, Alaska         & C              \\ \hline
+There are still prayer and healing ceremonies occurring at the camp, and the future of the camp is dependent on the litigation,                                       & tribal spokesman Remi Bald Eagle             & C              \\ \hline
+but for some of us, it's strengthening our resolve as well. We know we still need to be here and we are going to be as active, if not more, in the future.            & Glenn Williamson, a 41-year-old camp member from Sioux Falls, S.D.                                             & C              \\ \hline
+We can't just fight. We can't just resist, We have to offer an alternative. We have an alternative here.                                                              & Matthew Gordon, a native of the Quad Cities  & C              \\ \hline
+I came here to kill the snake.                                                                      & Helen Red Feather, 60, of Pine Ridge, South Dakota                                                             & C              \\ \hline
+This is sacred ground, We are claiming eminent domain.                                              & Robby Romero                                 & C              \\ \hline
+spiritual battle... This is a protest about the stewardship of God's creation and justice for the indigenous peoples of the Great Plains,                               & Bruce Ough, a Methodist bishop responsible for the Dakotas and Minnesota                                       & C              \\ \hline
+the most powerful experience I have had in 25 years at Standing Rock                                & Mr Floberg                                   & C              \\ \hline
+Just because someone is protesting one type of technological intrusion doesn't mean that their embrace of other technologies is somehow ironic. It's a sign of technological sophistication, not a fruitless protest against modernity, as I think is sometimes shown in the media,                                         & author Vine Deloria                          & C              \\ \hline
+The idea of small-is-beautiful is important here I think,.... This was an ethic popularized by the American counterculture but quickly adopted by indigenous peoples globally as a means of reconciling nature, culture and technology.                     & Andrew Kirk, a history professor at the University of Nevada                                                   & C              \\ \hline
+But we will continue this fight until we are heard and the world knows what happened to us.         & Danielle Ta'Sheena Finn, a spokeswoman for the Standing Rock Sioux                                             & C              \\ \hline
+We are going to keep it going, keep organizing meetings and find a way to be able to take care of the health and welfare of our people, and preserve land and water.  & Ivan Lookinghorse, a medicine man from the Cheyenne River Reservation                                          & C              \\ \hline
+On the day I was arrested, it was during a prayer walk away from the pipeline.                      & Manuel                                       & C              \\ \hline
+If I don't stand up for my rights and our title as a Secwepemc woman and as a mother, I'm leaving this fight even greater for my children. I love my children so much that I'll do whatever I can to protect their water and their salmon for all of their future.                                                          & Kanahus Manuel of the Secwepemc Nation in British Columbia                                                     & C              \\ \hline
+This is a fight for water, and for sacred land. They're still going to need support here.           & Tiger Forest, who's been staying with the Lakota Sioux                                                         & C              \\ \hline
+But keep the coalitions together, because there are more pipelines proposed, and we must protect our Mother Earth for our future generations.                         & Gay Kingman, the executive director of the Great Plains Tribal Chairman's Association                          & C              \\ \hline
+If you don't know very much about Native American people, you wouldn't understand that this is something that's kind of natural to us,... When we have ceremonies, we do camps like this. It's something that we've always known how to do, going back to pre-colonial times.                                                 & Hopkins, who is enrolled in the Sisseton Wahpeton Oyate Nation and was born on the Standing Rock Reservation   & C              \\ \hline
+We're here today to send a message that we, as human beings, are indigenous to the earth. The earth is our mother. Your relationship with the mother is forever. The earth gives us our water, our air, our food, our shelter. We need to protect it.     & Cassandra Begay, 31, a member of the Navajo tribe                                                              & C              \\ \hline
+The [archaeological] firm that came through here walked over these. They do not have a connection that we have to our spiritual walk of life.                         & Mentz                                        & C              \\ \hline
+It's my hope that the federal government, working with the various (tribal) nations who are affected by the pipeline, and working with the company involved, can come to a reasonable resolution, one that honors the need for energy but that does so in ways that protect the environment that God has given all of us and that respects sacred burial grounds of the native, indigenous people that live there.                                                                & bishop Michael Curry                         & C              \\ \hline
+To put that pipeline in the ground would be irreparable harm for us in our culture,...                & Cheyenne River Chairman Harold Frazier       & C              \\ \hline
+The mere presence of the oil in the pipeline renders the water spiritually impure,                  & Nicole Ducheneaux, lawyer for the Cheyenne River Sioux tribe                                                   & C              \\ \hline
+in peaceful prayer and in dignity as we assert our rights to protect our environment, our economy and our sovereignty.                                                & American Indian activist Chase Iron Eyes     & C              \\ \hline
+Our camp is gone, but our spirit is not broken,                                                     & Sioux member Floris Bull White               & C              \\ \hline
+\end{longtable}
+\end{spacing}
+\end{footnotesize}
