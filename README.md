@@ -58,8 +58,3 @@ A standard LaTeX installation with the packages referenced in that file is requi
 
 This GitHub repository contains the **source materials** for the dissertation. The version deposited in the TU Bergakademie Freiberg institutional repository should be treated as the archival published version.
 
-## Author
-
-**Craig Frayne**
-
-Research interests include discourse analysis, corpus linguistics, philosophy of language, environmental humanities, and biodiversity informatics.
